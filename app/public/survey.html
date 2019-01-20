@@ -5,20 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Friend Finder</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="css/home.css" />
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery.js"></script>
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-        <div class="jumbotron">
-            <a href="home.html">Home</a>
+        <div style="width: 968px; margin:auto;" class="jumbotron">
+            <a href="/">Home</a>
             <h1 class="display-4">Survey</h1>
             <p class="lead">Fill out ten questions and find your new best friend!</p>
             <hr class="my-4">
+            <p>What is your name?</p>
+            <div class="container">   
+                <input style="width: 30%;" class="form-control user-name" type="text">
+            </div>
             <p class="question">1) How much do you enjoy listening to music?</p>
                 <div class="container">                                         
                 <div class="dropdown">
@@ -161,40 +164,31 @@
             </div>
             <br><br><br>
             <div class="container">       
-                <button class="btn-lg btn-primary">Submit</button>
+                <button type="button" class="btn-lg btn-primary submit" data-toggle="modal" data-target="#friendResult">Submit</button>
+            </div>
+        </div>
+
+  
+        <!-- Modal -->
+        <div class="modal fade" id="friendResult" tabindex="-1" role="dialog" aria-labelledby="friendResultTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h2 class="modal-title" id="exampleModalLongTitle"></h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+                </div>
+                <div class="modal-body">
+                ...
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
             </div>
         </div>
         <script>
             let buttonNumber = null;
-            // let questionDiv = $('<p>');
-            // let containerDiv = $("<div>");
-            // let dropdownDiv = $("<div>");
-            // let buttonDiv = $("<button>");
-            // let caretDiv = $("<span>");
-            // let listDiv = $("<ul>");
-            // let listItem = $("<li>");
-
-            // questionDiv.attr("class", "question");
-            // questionDiv.text("Test Question");
-            // questionDiv.appendTo(".jumbotron");
-
-            // containerDiv.attr("class", "container");
-            // containerDiv.appendTo('.jumbotron');
-
-            // dropdownDiv.attr("class", "dropdown");
-            // dropdownDiv.text("hello");
-            // dropdownDiv.appendTo('.container');
-
-            // buttonDiv.attr("class", "btn btn-primary dropdown-toggle answer-div10");
-            // buttonDiv.text("hello");
-            // buttonDiv.appendTo('.jumbotron');
-
-            // caretDiv.attr("class", "caret");
-            // caretDiv.appendTo('.dropdown-toggle');
-
-            // listDiv.attr("class", "dropdown-menu");
-            // listDiv.appendTo(".dropdown");
-
             
 
             $('.dropdown-toggle').on("click", function() {
@@ -203,13 +197,54 @@
             $('.answer').on("click", function() {
                 answerValue = parseInt($(this).attr('data-value'));
                 for(let i = 1; i <= 10; i++) {
-                    console.log(i);
                     if(i === buttonNumber) {
-                        console.log("hellooo");
                         $('.answer-div' + i).text(answerValue);
                     }
                 }
-            })
+            });
+            $('.submit').on('click', function(event) {
+                event.preventDefault();
+                let scores = [];
+                for(let i = 1; i <= 10; i++) {
+                    scores.push($('.answer-div' + i).text());
+                }
+                //console.log(scores);
+                let friendAnswers = {
+                    name: $('.user-name').val().trim(),
+                    scores: scores
+                }
+                function scoresValid() {
+                    for(let i = 1; i <= 10; i++) {
+                        scores[i] = parseInt(scores[i]);
+                        console.log(typeof(scores[i]));
+                        if(typeof(scores[i]) === "number" ) {
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                }
+                scoresValid();
+                if(!friendAnswers.name || !scoresValid()) {
+                    console.log("name doesn't exist");
+                    $(".modal-title").text("OOPS!");
+                    $(".modal-body").text("Please make sure all fields have been filled in completely.")
+                }
+                else {
+                    $(".modal-title").text("Success!");
+                    $(".modal-body").text("Your new best friend is ")
+                    $.post("/api/friends", friendAnswers, function(data) {
+                    console.log("post has been made");
+                    if(data) {
+                        alert("Yahoooooo");
+                    }
+                    else {
+                        alert("skrrrt");
+                    }
+                });
+                }
+            });
 
         </script>
 </body>

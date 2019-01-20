@@ -1,1 +1,3 @@
-//JSON data stored here
+let friendsData = [];
+
+module.exports = friendsData;
